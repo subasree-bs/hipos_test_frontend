@@ -1,0 +1,909 @@
+import React from "react";
+import { useState } from "react";
+import { styled, alpha } from "@mui/material/styles";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import { Accordion,Typography,Select,AccordionSummary,AccordionDetails,Checkbox,FormControl,MenuItem, Grid, InputLabel, Box, Button,
+   Menu,TableSortLabel,Tooltip,Avatar,Divider,Toolbar,Table,TableBody,
+   TableCell,TableContainer,TableHead,TableRow,Paper,Dialog,DialogTitle,
+   DialogContent,DialogActions} from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Tab from "@mui/material/Tab";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
+import HourglassFullIcon from "@mui/icons-material/HourglassFull";
+import ViewInArIcon from "@mui/icons-material/ViewInAr";
+import DeleteIcon from "@mui/icons-material/Delete";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import $ from "jquery";
+import IconButton from "@mui/material/IconButton";
+import PropTypes from "prop-types";
+import { FaFileCsv, FaPrint, FaFilePdf, FaEdit, FaEye, FaTrash, 
+  FaDatabase, FaHistory, FaCopy, FaBarcode,} from "react-icons/fa";
+import { AiFillFileExcel } from "react-icons/ai";
+import { visuallyHidden } from "@mui/utils";
+import {Link} from "react-router-dom";
+import {prodList} from "./ProductStyle";
+import { StyledTableRow, StyledTableCell} from '../../../components/Table';
+import Sidebar from '../../../components/header/Sidebar';
+import Footer from '../../../components/footer/Footer';
+import { userStyle } from '../../PageStyle';
+
+//Actions Dropdown Button - List 
+const StyledMenu = styled((props) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: "bottom",
+      horizontal: "right",
+    }}
+    transformOrigin={{
+      vertical: "top",
+      horizontal: "right",
+    }}
+    {...props}
+  />
+))(({ theme }) => ({
+  "& .MuiPaper-root": {
+    borderRadius: 6,
+    marginTop: theme.spacing(1),
+    minWidth: 150,
+    color:
+      theme.palette.mode === "light"
+        ? "rgb(55, 65, 81)"
+        : theme.palette.grey[300],
+    boxShadow:
+      "rgb(255, 255, 255) 0px 0px 0px 0px, rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+    "& .MuiMenu-list": {
+      padding: "4px 0",
+    },
+    "& .MuiMenuItem-root": {
+      fontSize: 14,
+      "& .MuiSvgIcon-root": {
+        fontSize: 15,
+        color: theme.palette.text.secondary,
+        marginRight: theme.spacing(1.5),
+      },
+      "&:active": {
+        backgroundColor: alpha(
+          theme.palette.primary.main,
+          theme.palette.action.selectedOpacity
+        ),
+      },
+    },
+  },
+}));
+
+//All Products Table createData function
+function createData( productimage, action, product, businesslocation, upprice, 
+  sprice, currentstock, producttype, category, brand, tax, sku, cf1, cf2, cf3, cf4)
+   {
+  return { productimage, action, product, businesslocation, upprice, 
+    sprice, currentstock, producttype, category, brand, tax, sku, cf1, cf2, cf3, cf4,
+  };
+}
+
+//All Products Table rows 
+const rows = [
+  createData( "dfgh", "", "Cupcake1", "Cupcake2", "Cupcake3", "Cupcake4", "Cupcake5", 
+  "Cupcake6", "Cupcake7", "Cupcake8", "Cupcake9", 67, 4.3, 69, 46, 78, 89),
+  createData( "efgh", "", "Chocolate", "Cake2", "Cake3", "Cake4", "Cake5", "Cake6", "Cake7", 
+  "Cake8", "Cake9", 97, 9.3, 99, 96, 98, 99),
+  createData( "jfgh", "", "Cake1", "Cake2", "Cake3", "Cake4", "Cake5", "Cake6", "Cake7", 
+  "Cake8", "Cake9", 37, 3.3, 39, 36, 38, 39),
+];
+
+function descendingComparator(a, b, orderBy) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
+
+function getComparator(order, orderBy) {
+  return order === "desc"
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+function stableSort(array, comparator) {
+  const stabilizedThis = array.map((el, index) => [el, index]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) {
+      return order;
+    }
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
+}
+
+const headCells = [
+  { id: "productimage", numeric: false, disablePadding: true, label: "", },
+  { id: "action", numeric: false, disablePadding: true, label: "Action", },
+  { id: "product", numeric: false, disablePadding: false, label: "Product", },
+  { id: "businesslocation", numeric: false, disablePadding: false, label: "Business Location", },
+  { id: "upprice", numeric: false, disablePadding: false, label: "Unit Purchase Price", },
+  { id: "sprice", numeric: false, disablePadding: false, label: "Selling Price", },
+  { id: "currentstock", numeric: false, disablePadding: false, label: "Current Stock", },
+  { id: "producttype", numeric: false, disablePadding: false, label: "Product Type", },
+  { id: "category", numeric: false, disablePadding: false, label: "Category", },
+  { id: "brand", numeric: false, disablePadding: false, label: "Brand", },
+  { id: "tax", numeric: false, disablePadding: false, label: "Tax", },
+  { id: "sku", numeric: true, disablePadding: false, label: "SKU", },
+  { id: "cf1", numeric: true, disablePadding: false, label: "Custom Field1", },
+  { id: "cf2", numeric: true, disablePadding: false, label: "Custom Field2", },
+  { id: "cf3", numeric: true, disablePadding: false, label: "Custom Field3", },
+  { id: "cf4", numeric: true, disablePadding: false, label: "Custom Field4", },
+];
+
+
+// All Products Table Head function
+function EnhancedTableHead(props) {
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort,} = props;
+  const createSortHandler = (property) => (event) => {onRequestSort(event, property); };
+
+  return (
+    <TableHead>
+      <TableRow>
+        <TableCell padding="checkbox">
+          <Checkbox
+            color="primary"
+            indeterminate={numSelected > 0 && numSelected < rowCount}
+            checked={rowCount > 0 && numSelected === rowCount}
+            onChange={onSelectAllClick}
+            inputProps={{
+              "aria-label": "select all desserts",
+            }}
+          />
+        </TableCell>
+        {headCells.map((headCell) => (
+          <TableCell
+            sx={{
+              fontWeight: "600",
+              fontSize: "14px",
+              color: "black",
+            }}
+            key={headCell.id}
+            align="center"
+            padding={headCell.disablePadding ? "none" : "normal"}
+            sortDirection={orderBy === headCell.id ? order : false}
+          >
+            <TableSortLabel
+              active={orderBy === headCell.id}
+              direction={orderBy === headCell.id ? order : "asc"}
+              onClick={createSortHandler(headCell.id)}
+            >
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <Box component="span" sx={visuallyHidden}>
+                  {order === "desc" ? "sorted descending" : "sorted ascending"}
+                </Box>
+              ) : null}
+            </TableSortLabel>
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
+
+EnhancedTableHead.propTypes = {
+  numSelected: PropTypes.number.isRequired,
+  onRequestSort: PropTypes.func.isRequired,
+  onSelectAllClick: PropTypes.func.isRequired,
+  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
+  orderBy: PropTypes.string.isRequired,
+  rowCount: PropTypes.number.isRequired,
+};
+
+const EnhancedTableToolbar = (props) => {
+  const { numSelected } = props;
+
+  return (
+    <Toolbar
+      sx={{
+        pl: { sm: 2 },
+        pr: { xs: 1, sm: 1 },
+        ...(numSelected > 0 && {
+          bgcolor: (theme) =>
+            alpha(
+              theme.palette.secondary.main,
+              theme.palette.action.activatedOpacity
+            ),
+        }),
+      }}
+    >
+      {numSelected > 0 ? (
+        <Typography
+          sx={{ flex: "1 1 100%", fontSize: "20px" }}
+          color="inherit"
+          variant="subtitle1"
+          component="div"
+        >
+          {numSelected} selected
+        </Typography>
+      ) : (
+        <Typography
+          sx={{ flex: "1 1 100%" }}
+          variant="h6"
+          id="tableTitle"
+          component="div"
+        ></Typography>
+      )}
+
+      {numSelected > 0 ? (
+        <Tooltip title="Delete">
+          <IconButton>
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      ) : (
+        <Tooltip title="Filter list">
+          <IconButton></IconButton>
+        </Tooltip>
+      )}
+    </Toolbar>
+  );
+};
+
+EnhancedTableToolbar.propTypes = {
+  numSelected: PropTypes.number.isRequired,
+};
+
+
+
+// Table 2 - Stock Report - Row creation function
+function createData2( sr_sku, sr_product, sr_location, sr_unitprice, sr_currentstock, 
+  sr_currentstock_pp, sr_currentstock_sp, sr_potentialprofit, sr_totalunitsold, 
+  sr_totalunittransferred, sr_totalunitadjusted) 
+  {
+  return { sr_sku, sr_product, sr_location, sr_unitprice, sr_currentstock, 
+    sr_currentstock_pp, sr_currentstock_sp, sr_potentialprofit, sr_totalunitsold, 
+    sr_totalunittransferred, sr_totalunitadjusted,
+  };
+}
+
+const rows2 = [
+  createData2( "Frozen yoghurt", 159, 6.0, 24, 4.0, "Frozen yoghurt", 159, 6.0, 24, 4.0, 78 ),
+  createData2( "Ice cream sandwich", 237, 9.0, 37, 4.3, "Ice cream sandwich", 237, 9.0, 37, 4.3, 79 ),
+];
+
+ function Productlisttable() {
+
+// Filter - All Select Inputs
+const [productFilter, setProductFilter] = useState({ProductType: "",Category: "",Unit:"",Tax:"",Brand:"",BusinessLocation:"",Status:""})
+
+// Table 1 - All Products
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState("product");
+  const [selected, setSelected] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelected = rows.map((n) => n.product);
+      setSelected(newSelected);
+      return;
+    }
+    setSelected([]);
+  };
+
+  const handleClick = (event, product) => {
+    const selectedIndex = selected.indexOf(product);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, product);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      );
+    }
+
+    setSelected(newSelected);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 25));
+    setPage(0);
+  };
+
+  const isSelected = (product) => selected.indexOf(product) !== -1;
+
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick_action = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+
+// Table 1 - Plugin
+  $(document).ready(function () {
+    setTimeout(function () {
+      $("#example").DataTable({
+        language: { search: "", searchPlaceholder: "Search..." },
+        lengthMenu: [25, 50, 100, 200, 500, 1000],
+        retrieve: true,
+      });
+    }, 1000);
+  });
+
+
+
+// Accordion expand  
+  const [expanded, setExpanded] = useState("panel1");
+
+  const handleChangePanel = (panel) => (event, newExpanded) => {
+    setExpanded(newExpanded ? panel : false);
+  };
+
+  const [TabValue, setTabValue] = useState("1");
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
+// Table 2 - Plugin
+  $(document).ready(function () {
+    setTimeout(function () {
+      $("#example2").DataTable({
+        language: { search: "", searchPlaceholder: "Search..." },
+        lengthMenu: [25, 50, 100, 200, 500, 1000],
+        paging: true,
+      });
+    }, 1000);
+  });
+
+// Stock Report Table Modal
+  const [ModalOpen, setModalOpen] = useState(false);
+
+  const handleClickModalOpen = () => {
+    setModalOpen(true);
+  };
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
+  return (
+    <Box sx={{ margin: '0px 30px' }}>
+      <Typography  sx={userStyle.HeaderText}>Products <Typography  sx={userStyle.SubHeaderText}>Manage your products</Typography></Typography>
+
+      {/* *****Filters Grid***** */}
+
+      <Accordion
+            expanded={expanded === "panel1"}
+            onChange={handleChangePanel("panel1")}
+            sx={userStyle.container}
+          >
+            <AccordionSummary
+              aria-controls="panel1d-content"
+              id="panel1d-header"
+            >
+              <Typography sx={{ color: " #7009AB" }}>
+                <FilterAltIcon /> Filter
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Grid container spacing={2}>
+                <Grid  item  md={3}  sm={6}  xs={10} sx={prodList.select_input} >
+                  <Typography>
+                    <FormControl sx={ prodList.select_formcontrol } size="small" fullWidth >
+                      <InputLabel id="demo-select-small">Product Type </InputLabel>
+                      <Select
+                        labelId="demo-select-small"
+                        id="demo-select-small"
+                        value={productFilter.ProductType}
+                        label="Product Type"
+                        onChange={(event) => {
+                          setProductFilter({...productFilter, ProductType: event.target.value})
+                        }}
+                      >
+                        <MenuItem value="">All</MenuItem>
+                        <MenuItem value={"single"}>Single</MenuItem>
+                        <MenuItem value={"variable"}>Variable</MenuItem>
+                        <MenuItem value={"combo"}>Combo</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Typography>
+                </Grid>
+
+                <Grid  item  md={3}  sm={6}  xs={10} sx={prodList.select_input} >
+                  <Typography>
+                  <FormControl sx={ prodList.select_formcontrol } size="small" fullWidth >
+                      <InputLabel id="demo-select-small">Category</InputLabel>
+                      <Select
+                        labelId="demo-select-small"
+                        id="demo-select-small"
+                        value={productFilter.Category}
+                        label="Category"
+                        onChange={(event) => {
+                          setProductFilter({...productFilter, Category: event.target.value})
+                        }}
+                      >
+                        <MenuItem value="category_all">All</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Typography>
+                </Grid>
+
+                <Grid  item  md={3}  sm={6}  xs={10} sx={prodList.select_input} >
+                  <Typography>
+                  <FormControl sx={ prodList.select_formcontrol } size="small" fullWidth >
+                      <InputLabel id="demo-select-small">Unit</InputLabel>
+                      <Select
+                        labelId="demo-select-small"
+                        id="demo-select-small"
+                        value={productFilter.Unit}
+                        label="Unit"
+                        onChange={(event) => {
+                          setProductFilter({...productFilter, Unit: event.target.value})
+                        }}
+                      >
+                        <MenuItem value="">All</MenuItem>
+                        <MenuItem value={"pieces"}>Pieces (Pc(s))</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Typography>
+                </Grid>
+
+                <Grid  item  md={3}  sm={6}  xs={10} sx={prodList.select_input} >
+                  <Typography>
+                  <FormControl sx={  prodList.select_formcontrol } size="small" fullWidth >
+                      <InputLabel id="demo-select-small">Tax</InputLabel>
+                      <Select
+                        labelId="demo-select-small"
+                        id="demo-select-small"
+                        value={productFilter.Tax}
+                        label="Tax"
+                        onChange={(event) => {
+                          setProductFilter({...productFilter, Tax: event.target.value})
+                        }}
+                      >
+                        <MenuItem value="">All</MenuItem>
+                        <MenuItem value={"gst"}>GST</MenuItem>
+                        <MenuItem value={"cgst"}>CGST</MenuItem>
+                        <MenuItem value={"tax"}>Tax</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Typography>
+                </Grid>
+
+                <Grid  item  md={3}  sm={6}  xs={10} sx={prodList.select_input} >
+                  <Typography>
+                  <FormControl sx={  prodList.select_formcontrol } size="small" fullWidth >
+                      <InputLabel id="demo-select-small">Brand</InputLabel>
+                      <Select
+                        labelId="demo-select-small"
+                        id="demo-select-small"
+                        value={productFilter.Brand}
+                        label="Brand"
+                        onChange={(event) => {
+                          setProductFilter({...productFilter, Brand: event.target.value})
+                        }}
+                      >
+                        <MenuItem value="">All</MenuItem>
+                        <MenuItem value={"motog"}>MotoG</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Typography>
+                </Grid>
+
+                <Grid  item  md={3}  sm={6}  xs={10} sx={prodList.select_input} >
+                  <Typography>
+                    <FormControl sx={  prodList.select_formcontrol } size="small" fullWidth >
+                      <InputLabel id="demo-select-small">
+                        Business Location 
+                      </InputLabel>
+                      <Select
+                        labelId="demo-select-small"
+                        id="demo-select-small"
+                        value={productFilter.BusinessLocation}
+                        label="Business Location"
+                        onChange={(event) => {
+                          setProductFilter({...productFilter, BusinessLocation: event.target.value})
+                        }}
+                      >
+                        <MenuItem value="">All</MenuItem>
+                        <MenuItem value={"none"}>None</MenuItem>
+                        <MenuItem value={"xyz"}>XYZ (123456)</MenuItem>
+                        <MenuItem value={"juiceria"}>
+                          Juiceria (1234567)
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Typography>
+                </Grid>
+
+                <Grid  item  md={3}  sm={6}  xs={10} sx={prodList.select_input} >
+                  <Typography>
+                  <FormControl sx={  prodList.select_formcontrol } size="small" fullWidth >
+                      <Select  value={productFilter.Status}   onChange={(event) => {
+                          setProductFilter({...productFilter, Status: event.target.value})
+                        }}  displayEmpty >
+                        <MenuItem value="">All</MenuItem>
+                        <MenuItem value={"active"}>Active</MenuItem>
+                        <MenuItem value={"inactive"}>Inactive</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Typography>
+                </Grid>
+
+                <Grid item md={3} sm={6} xs={10}>
+                  <Typography>
+                    <FormControl sx={{ m: 1 }} size="small" fullWidth>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            defaultChecked
+                            sx={{ "& .MuiSvgIcon-root": { fontSize: 30 } }}
+                          />
+                        }
+                        label="Not for selling"
+                      />
+                    </FormControl>
+                  </Typography>
+                </Grid>
+
+              </Grid>
+            </AccordionDetails>
+      </Accordion><br /><br />
+      {/* ********Tabs Grid******** */}
+
+      <>
+        <Grid sx={ userStyle.container } >
+          <Box sx={{ typography: "body1" }}>
+            <TabContext value={TabValue}>
+              <Box>
+                <TabList onChange={handleTabChange} aria-label="Tabs">
+                  <Tab icon={<ViewInArIcon />} iconPosition="start" label="All Products" 
+                  value="1" sx={prodList.tab}
+                  />
+                  <Tab icon={<HourglassFullIcon />} iconPosition="start" label="Stock Report" 
+                  value="2" sx={prodList.tab}
+                  />
+                </TabList>
+              </Box>
+              <TabPanel value="1" sx={prodList.tabpanel}>
+                <>
+                  <br />
+                  <Link to="/product/product/create" style={{color: 'white',textDecoration: 'none'}}>
+                    <Button className="add_btn" variant="contained"sx={userStyle.buttonadd}> ADD</Button>
+                  </Link>
+                  <Box sx={{ width: "100%" }}>
+                    <Paper sx={{ width: "100%", mb: 2 }}>
+                      <EnhancedTableToolbar numSelected={selected.length} />
+
+              {/* All Products Table */}
+
+                      <TableContainer sx={{  }}>
+                        <Grid container sx={{ justifyContent: "center",}} >
+                          <Grid>
+                            <Button sx={userStyle.buttongrp} variant="outlined">
+                              <FaFileCsv />&ensp;Export to CSV
+                            </Button>
+                            <Button sx={userStyle.buttongrp} variant="outlined">
+                              <AiFillFileExcel />&ensp;Export to Excel
+                            </Button>
+                            <Button sx={userStyle.buttongrp} variant="outlined">
+                              <FaPrint />&ensp;Print
+                            </Button>
+                            <Button sx={userStyle.buttongrp} variant="outlined">
+                              <FaFilePdf />&ensp;Export to PDF
+                            </Button>
+                          </Grid>
+                        </Grid>
+                        <Table
+                          id="example"
+                          sx={{ minWidth: 750 ,pr: 1 }}
+                          aria-labelledby="tableTitle"
+                        >
+                          <EnhancedTableHead
+                            numSelected={selected.length} order={order} orderBy={orderBy}
+                            onSelectAllClick={handleSelectAllClick} onRequestSort={handleRequestSort}
+                            rowCount={rows.length}
+                          />
+                          <TableBody>
+                            {stableSort(rows, getComparator(order, orderBy))
+                              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                              .map((row, index) => {
+                                const isItemSelected = isSelected(row.product);
+                                const labelId = `enhanced-table-checkbox-${index}`;
+
+                                return (
+                                  <StyledTableRow
+                                    hover
+                                    onClick={(event) => handleClick(event, row.product)}
+                                    role="checkbox"
+                                    aria-checked={isItemSelected}
+                                    tabIndex={-1}
+                                    key={row.product}
+                                    selected={isItemSelected}
+                                    align="center"
+                                  >
+                                    <StyledTableCell padding="checkbox">
+                                      <Checkbox
+                                        color="primary"
+                                        checked={isItemSelected}
+                                        inputProps={{
+                                          "aria-labelledby": labelId,
+                                        }}
+                                      />
+                                    </StyledTableCell>
+                                    <StyledTableCell
+                                      component="th"
+                                      id={labelId}
+                                      scope="row"
+                                      padding="none"
+                                    >
+                                      <Avatar
+                                        sx={{ backgroundColor: "#cdcdcd" }}
+                                        variant="square"
+                                      ></Avatar>
+                                    </StyledTableCell>
+
+                      {/* Actions Dropdown Button */}
+
+                                    <StyledTableCell>
+                                      <Button
+                                        id="demo-customized-button"
+                                        aria-controls={open ? "demo-customized-menu" : undefined}
+                                        aria-haspopup="true"
+                                        aria-expanded={open ? "true" : undefined}
+                                        variant="contained"
+                                        disableElevation
+                                        onClick={handleClick_action}
+                                        endIcon={<KeyboardArrowDownIcon />}
+                                        size="small"
+                                        sx={{ backgroundColor: '#6420c0', textTransform: 'Capitalize' }}
+                                      >
+                                        Actions
+                                      </Button>
+
+                      {/* Actions Dropdown Button - List */}
+
+                                      <StyledMenu
+                                        id="demo-customized-menu"
+                                        MenuListProps={{
+                                          "aria-labelledby": "demo-customized-button",
+                                        }}
+                                        anchorEl={anchorEl} open={open} onClose={handleClose}
+                                      >
+                                        <MenuItem onClick={handleClose} disableRipple>
+                                          <FaBarcode /> &nbsp; &nbsp; &nbsp;Labels
+                                        </MenuItem>
+                                        <MenuItem >
+                                        <Link to="/product/product/view" disableRipple style={{color:"rgb(55, 65, 81)",textDecoration: "none"}} >
+                                          <FaEye />  &nbsp;&nbsp; &nbsp;View
+                                          </Link>
+                                        </MenuItem>
+                                        <MenuItem>
+                                        <Link to="/product/product/edit" fullWidth disableRipple style={{color:"rgb(55, 65, 81)",textDecoration: "none"}}>
+                                          <FaEdit /> &nbsp;&nbsp; &nbsp;Edit
+                                          </Link>
+                                        </MenuItem>
+                                        <MenuItem onClick={handleClose} disableRipple>
+                                          <FaTrash />  &nbsp;&nbsp; &nbsp;  Delete
+                                        </MenuItem>
+                                        <Divider sx={{ my: 2 }} />
+                                        <MenuItem onClick={handleClose} disableRipple>
+                                          <FaDatabase /> &nbsp;&nbsp; &nbsp; Add or edit opening stock
+                                        </MenuItem>
+                                        <MenuItem onClick={handleClose} disableRipple>
+                                          <FaHistory /> &nbsp; &nbsp; &nbsp;Product stock history
+                                        </MenuItem>
+                                        <MenuItem onClick={handleClose} disableRipple>
+                                          <FaCopy /> &nbsp; &nbsp; &nbsp;Duplicate Product
+                                        </MenuItem>
+                                      </StyledMenu>
+                                    </StyledTableCell>
+                                    <StyledTableCell>{row.product}</StyledTableCell>
+                                    <StyledTableCell>{row.businesslocation}</StyledTableCell>
+                                    <StyledTableCell>{row.upprice}</StyledTableCell>
+                                    <StyledTableCell>{row.sprice}</StyledTableCell>
+                                    <StyledTableCell>{row.currentstock}</StyledTableCell>
+                                    <StyledTableCell>{row.producttype}</StyledTableCell>
+                                    <StyledTableCell>{row.category}</StyledTableCell>
+                                    <StyledTableCell>{row.brand}</StyledTableCell>
+                                    <StyledTableCell>{row.tax}</StyledTableCell>
+                                    <StyledTableCell>{row.sku}</StyledTableCell>
+                                    <StyledTableCell>{row.cf1}</StyledTableCell>
+                                    <StyledTableCell>{row.cf2}</StyledTableCell>
+                                    <StyledTableCell>{row.cf3}</StyledTableCell>
+                                    <StyledTableCell>{row.cf4}</StyledTableCell>
+                                  </StyledTableRow>
+                                );
+                              })}
+                          </TableBody>
+                        </Table>
+                        <br />
+                        <Box>
+                        <Button  variant="contained"  size="small"  sx={prodList.delete_btn} >
+                          Delete Selected
+                        </Button>&nbsp;
+                        <Button  variant="contained"  size="small"  sx={prodList.addtolocation_btn} >
+                          Add to location
+                        </Button>&nbsp;
+                        <Button  variant="contained"  size="small"  sx={prodList.remove_btn} >
+                          Remove from location
+                        </Button>&nbsp;
+                        <Button  variant="contained"  size="small"  sx={prodList.deactive_btn} >
+                          Deactivate Selected
+                        </Button>
+                        </Box><br />
+                      </TableContainer>
+
+              {/* All Products Table Ends */}
+                  
+                    </Paper>
+                  </Box>
+                </>
+              </TabPanel>
+
+                {/* *****Stock Report***** */}
+
+              <TabPanel value="2" sx={prodList.tabpanel}>
+                <>
+
+          {/* Stock Report Table */}
+
+                <TableContainer component={Paper} sx={{  }}>
+                  <Grid container sx={{ justifyContent: "center",}} >
+                      <Grid>
+                        <Button sx={userStyle.buttongrp}>
+                          <FaFileCsv />&ensp;Export to CSV
+                        </Button>
+                        <Button sx={userStyle.buttongrp}>
+                          <AiFillFileExcel />&ensp;Export to Excel
+                        </Button>
+                        <Button sx={userStyle.buttongrp}>
+                          <FaPrint />&ensp;Print
+                        </Button>
+                        <Button sx={userStyle.buttongrp}>
+                          <FaFilePdf />&ensp;Export to PDF
+                        </Button>
+                      </Grid>
+                    </Grid>
+                    
+                    <Table id="example2" sx={{}} aria-label="simple table">
+                      <TableHead sx={{ fontWeight: "600", fontSize: "14px" }}>
+                        <StyledTableRow>
+                          <StyledTableCell >SKU</StyledTableCell>
+                          <StyledTableCell >Product</StyledTableCell>
+                          <StyledTableCell >Location</StyledTableCell>
+                          <StyledTableCell sx={{  width: 180 }}>Unit Price</StyledTableCell>
+                          <StyledTableCell >Current Stock</StyledTableCell>
+                          <StyledTableCell sx={{  width: 180 }}>Current Stock Value (By purchase price)</StyledTableCell>
+                          <StyledTableCell sx={{  width: 180 }}>Current Stock Value (By sale price)</StyledTableCell>
+                          <StyledTableCell >Potential Profit</StyledTableCell>
+                          <StyledTableCell >Total Unit Sold</StyledTableCell>
+                          <StyledTableCell >Total Unit Tranferred</StyledTableCell>
+                          <StyledTableCell >Total Unit Adjusted</StyledTableCell>
+                        </StyledTableRow>
+                      </TableHead>
+                      <TableBody>
+                        {rows2.map((row) => (
+                          <StyledTableRow key={row.sr_sku} >
+                            <StyledTableCell component="th" scope="row">{row.sr_sku}</StyledTableCell>
+                            <StyledTableCell>{row.sr_product}</StyledTableCell>
+                            <StyledTableCell>{row.sr_location}</StyledTableCell>
+                            <StyledTableCell>
+                              {row.sr_unitprice}
+                              <br />
+
+                    {/* View Group Prices Modal */}
+
+                              <Button  variant="outlined"  onClick={handleClickModalOpen}  
+                              size="small"  sx={prodList.viewbtn} >
+                                View group prices
+                              </Button>
+                              <Dialog
+                                onClose={handleModalClose}
+                                aria-labelledby="customized-dialog-title"
+                                open={ModalOpen}
+                                sx={{
+                                  "& .MuiDialog-paper": {
+                                    marginTop: "-330px",
+                                    transformOrigin: "0 0 0",
+                                  },
+                                }}
+                              >
+                                <DialogTitle
+                                  id="customized-dialog-title"
+                                  onClose={handleModalClose}
+                                  sx={{ minWidth: 600 }}
+                                >
+                                  Product
+                                </DialogTitle>
+                                <DialogContent dividers>
+                                  <Table>
+                                    <TableRow sx={{ backgroundColor: "#2dce89", m: 0, p: 0 }}>
+                                      <TableCell sx={{ color: "#fff" }}>
+                                        Default Selling Price (Inc. tax)
+                                      </TableCell>
+                                    </TableRow>
+                                    <TableRow sx={{ backgroundColor: "#d2d6de" }}>
+                                      <TableCell>₹ 2,343.75</TableCell>
+                                    </TableRow>
+                                  </Table>
+                                  <br />
+                                </DialogContent>
+                                <DialogActions>
+                                  <Button  autoFocus  onClick={handleModalClose}  variant="outlined"
+                                    sx={{
+                                      backgroundColor: "#f4f4f4",
+                                      borderColor: "#ddd",
+                                      color: "#444",
+                                    }}
+                                  >
+                                    Close
+                                  </Button>
+                                </DialogActions>
+                              </Dialog>
+                            </StyledTableCell>
+
+                  {/* View Group Prices Modal Ends */}
+
+                            <StyledTableCell>{row.sr_currentstock}</StyledTableCell>
+                            <StyledTableCell>{row.sr_currentstock_pp}</StyledTableCell>
+                            <StyledTableCell>{row.sr_currentstock_sp}</StyledTableCell>
+                            <StyledTableCell>{row.sr_potentialprofit}</StyledTableCell>
+                            <StyledTableCell>{row.sr_totalunitsold}</StyledTableCell>
+                            <StyledTableCell>{row.sr_totalunittransferred}</StyledTableCell>
+                            <StyledTableCell>{row.sr_totalunitadjusted}</StyledTableCell>
+                          </StyledTableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+          {/* Stock Report Table Ends*/}
+                </>
+              </TabPanel><br />
+            </TabContext>
+          </Box>
+        </Grid>
+      </><br /> <br />
+    </Box>
+  );
+}
+
+function Productlist(){
+  return(
+    <Box sx={{display:'flex', }} >
+    <Sidebar />
+    <Box sx={{width:'100%',overflowX:'hidden'}}>
+      <Box component="main" ><br /><br /><br />
+        <Productlisttable /><br /><br />
+        <Footer /><br />
+      </Box>
+    </Box>
+  </Box>
+  );
+}
+
+export default Productlist;
