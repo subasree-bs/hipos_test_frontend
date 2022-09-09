@@ -4,9 +4,42 @@ import { Grid, Typography, Box, FormControl, InputLabel, Select, MenuItem  } fro
 import { dashboardstyle } from './Dashboardstyle';
 import { SmartScreenSharp , DoDisturbOnSharp, PriorityHighSharp, PrivacyTipSharp, ShoppingCart, ChildFriendly, Crib } from '@mui/icons-material';
 import Daterangepicker from '../components/Daterangepicker';
+import axios from 'axios';
 // import Dashboardtable from './Table';
-
+axios.defaults.withCredentails = true
+let firstRender = true;
 const Dashboardlayout = () => {
+
+  const [login,setLogin] = useState();
+
+  const refreshToken = async() => {
+    const res =  await  axios.get("http://localhost:5000/api/refresh", {
+      withCredential: true
+    }).catch(err=>console.log(err))
+    const data = await res.data;
+    return data;
+  }
+
+  const sendRequest = async() => {
+    const res = await axios.get("http://localhost:5000/api/dashboard",{
+      withCredentials: true
+    }).catch(err => console.log(err))
+    const data = await res.data;
+    return data;
+  }
+  useEffect(()=> {
+    if(firstRender){
+      firstRender = false;
+      sendRequest().then((data)=>setLogin(data.login))
+    }
+    let interval = setInterval(()=>{ 
+      refreshToken().then(data=>setLogin(data.login))
+    },1000 * 29)
+
+    return ()=>clearInterval(interval)
+
+  },[])
+
   const [location, setLocation] =  useState("");
   
   return(

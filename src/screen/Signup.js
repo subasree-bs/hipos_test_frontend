@@ -14,13 +14,14 @@ import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
 import {FaFacebookF,FaLinkedinIn,FaTwitter} from 'react-icons/fa';
 import { loginSignIn } from './Loginstyle';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import google from '../assets/images/icons/google.png';
 import microsoft from '../assets/images/icons/microsoft.png';
 import './Signin.css';
-
+import axios from 'axios';
 const Signup = () => {
     
+    const history = useNavigate();
     useEffect(
         () => {
           document.body.classList.add('signupbackground');
@@ -30,8 +31,29 @@ const Signup = () => {
         }, []
       );
 
-    const [signupForm, setSignupForm] = useState({name: "", email:"", password:"", country: "India", location: "Tamil nadu", phonenumber:""});
+    const [signupForm, setSignupForm] = useState({name: "", email:"", password:"", country: "", location: "", phonenumber:""});
     
+    const sendSignupRequest = async () => {
+        const res = await axios.post("http://localhost:5000/api/signup",{
+            SignUpCompanyName: signupForm.name,
+            SignUpEmail: signupForm.email,
+            SignUpPassword: signupForm.password,
+            SignUpCountry: signupForm.country,
+            SignUpLocation: signupForm.location,
+            SignUpPhonenumber: signupForm.phonenumber
+        }).catch(err => console.log(err));
+        const data = await res.data; 
+        return data;
+    }
+    
+    const handleSignupSubmit = (e) => {
+        e.preventDefault();
+        // console.log(signupForm);
+        sendSignupRequest().then(() => history("/signin"));
+    }
+
+    
+
     return (
     <>
     <Box sx={{backgroundColor: 'white'}}>
@@ -81,21 +103,21 @@ const Signup = () => {
                       <Typography variant="h5" sx={{ color : '#5D5C5C', fontFamily: 'fantasy', textAlign: 'center' }}>Start your full-featured Free Trial for 14 days</Typography><br />
                       {/* Signup form start */}
                       <Grid >
-                        <form action="">
+                        <form action="" onSubmit={handleSignupSubmit}>
                             <Box sx={loginSignup.formstart}>
                                 <Box sx={loginSignup.forminputfield}>
                                     <Box sx={loginSignup.inputalign}>
                                         <BusinessOutlined sx={loginSignup.inputicon} />
-                                        <TextField fullWidth value={signupForm.name}
+                                        <TextField fullWidth value={signupForm.name} name="SignUpCompanyName"
                                         onChange={ (event) => {
-                                            setSignupForm({...signupForm, name: event.target.value})
+                                            setSignupForm({...signupForm, name: event.target.value});
                                         }} placeholder="Company Name" variant="outlined" sx={loginSignup.inputfield} />
                                     </Box>
                                 </Box>
                                 <Box sx={loginSignup.forminputfield}>
                                     <Box sx={loginSignup.inputalign}>
                                         <EmailOutlinedIcon sx={loginSignup.inputicon} />
-                                        <TextField fullWidth value={signupForm.email}
+                                        <TextField fullWidth value={signupForm.email} name="SignUpEmail"
                                         onChange={ (event) => {
                                             setSignupForm({...signupForm, email: event.target.value})
                                         }} placeholder="Email Address" variant="outlined" sx={loginSignup.inputfield} />
@@ -104,7 +126,7 @@ const Signup = () => {
                                 <Box sx={loginSignup.forminputfield}>
                                     <Box sx={loginSignup.inputalign}>
                                         <LockOutlinedIcon sx={loginSignup.inputicon} />
-                                        <TextField fullWidth value={signupForm.password}
+                                        <TextField fullWidth value={signupForm.password} name="SignUpPassword"
                                         onChange={ (event) => {
                                             setSignupForm({...signupForm, password: event.target.value})
                                         }} placeholder="Password" variant="outlined" sx={loginSignup.inputfield} />
@@ -113,11 +135,11 @@ const Signup = () => {
                                 <Box sx={loginSignup.forminputfield}>
                                     <Box sx={loginSignup.inputalign}>
                                         <PublicOutlinedIcon sx={loginSignup.inputicon} />
-                                        <Select fullWidth value={signupForm.country}
+                                        <Select fullWidth value={signupForm.country} name="SignUpCountry"
                                         onChange={ (event) => {
-                                            setSignupForm({...signupForm, country: event.target.value})
+                                            setSignupForm({...signupForm, country: event.target.value});
                                         }} sx={loginSignup.inputfield}>
-                                             <MenuItem value={0}>Afghanistan</MenuItem>
+                                            <MenuItem value={0}>Afghanistan</MenuItem>
                                             <MenuItem value={1}>Albania</MenuItem>
                                             <MenuItem value={2}>Algeria</MenuItem>
                                             <MenuItem value={3}>Andorra</MenuItem>
@@ -190,7 +212,7 @@ const Signup = () => {
                                             <MenuItem value={60}>Honduras</MenuItem>
                                             <MenuItem value={61}>Hungary</MenuItem>
                                             <MenuItem value={62}>Iceland</MenuItem>
-                                            <MenuItem value={63}>India</MenuItem>
+                                            <MenuItem value={63} default>India</MenuItem>
                                             <MenuItem value={64}>Indonesia</MenuItem>
                                             <MenuItem value={65}>Iran</MenuItem>
                                             <MenuItem value={66}>Iraq</MenuItem>
@@ -316,7 +338,7 @@ const Signup = () => {
                                 <Box sx={loginSignup.forminputfield}>
                                     <Box sx={loginSignup.inputalign}>
                                         <FmdGoodOutlinedIcon sx={loginSignup.inputicon} />
-                                        <Select fullWidth value={signupForm.location}
+                                        <Select fullWidth value={signupForm.location} name="SignUpLocation"
                                         onChange={ (event) => {
                                             setSignupForm({...signupForm, location: event.target.value})
                                         }} sx={loginSignup.inputfield} id="signupSelect">
@@ -363,7 +385,7 @@ const Signup = () => {
                                 <Box sx={loginSignup.forminputfield}>
                                     <Box sx={loginSignup.inputalign}>
                                         <LocalPhoneOutlinedIcon sx={loginSignup.inputicon} />
-                                        <TextField fullWidth value={signupForm.phonenumber}
+                                        <TextField fullWidth value={signupForm.phonenumber} name="SignUpPhonenumber"
                                         onChange={ (event) => {
                                             setSignupForm({...signupForm, phonenumber: event.target.value})
                                         }} placeholder="PhoneNumber" variant="outlined" sx={loginSignup.inputfield} />
@@ -396,10 +418,10 @@ const Signup = () => {
                                     </Box>
                                     <Box sx={loginSignIn.twitterlogo}>
                                     <Box sx={loginSignIn.socialtwitter}><FaTwitter></FaTwitter></Box>
-                                    </Box>
+                                </Box>
                                   
                                     <br />
-                        </Grid>
+                                </Grid>
                             </Box>
                         </form>
                       </Grid>
