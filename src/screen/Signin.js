@@ -12,7 +12,8 @@ import {FaEyeSlash,FaFacebookF,FaLinkedinIn,FaTwitter,FaLinkedin,FaFacebook,FaAp
 import './Signin.css';
 import {BsThreeDots} from 'react-icons/bs';
 import CarouselComponent from "./CarousalSignin";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Signin = () => {
     useEffect(
@@ -42,21 +43,45 @@ const Signin = () => {
       setHiiden(!hidden);
     };
 
+    const gopage = useNavigate();
+    const [signupForm, setSignupForm] = useState({email:"", password:"",phonenumber:""});
+
+    const sendSignupRequest = async () => {
+      const res = await axios.post("http://localhost:5000/api/signin",{
+          email: signupForm.email,
+          password: signupForm.password,
+          phonenumber: signupForm.phonenumber
+      }).catch((err) => console.log(err));
+      const data = await res.data; 
+      return data;
+  }
+
+  const handleSignupSubmit = (e) => {
+    e.preventDefault();
+    // console.log(signupForm);
+    sendSignupRequest().then(() => gopage("/dashboard"));
+}
+
   return (
     <>
      <Container maxWidth="md" sx={{ marginTop: '100px',boxShadow:'0px 0px 10px #d6d3d363',backgroundColor:'white','@media (max-width: 750px)':{ boxShadow: 'none !important',marginTop: '0px'}, '@media (max-width: 1050px)':{ maxWidth:'md'}}}>
+       <form action="" onSubmit={handleSignupSubmit} >
        <Grid container sx = {{marginBottom: '10px'}} className="signInContainer">
          <Grid item xs={12} sm={12} md={7} className="signInContainer">
             <Grid sx={{ textAlign: 'center', marginTop: '40px',}}>
                 <img src={ logo } alt="HILIFEAILOGO" />
             </Grid>
-        
-            <Grid>
+            <Grid>          
             { hiddenCont ? <>
                 <Grid sx={loginSignIn.container}>
                     <Typography variant="h5" sx={loginSignIn.signInheadtxt} >Sign IN</Typography>
                     <Typography variant="h5" sx={loginSignIn.signInheadtxt}>to access HIPOS</Typography>
-                    <TextField fullWidth id="outlined-basic" label="Email address or Mobile Number" variant="outlined" sx={{ maxWidth: '90%'}} />
+                    <TextField fullWidth name="email" id="" label="Email address or Mobile Number" 
+                      variant="outlined" sx={{ maxWidth: '90%'}} value={signupForm.email}
+                      onChange={ (event) => {
+                        setSignupForm({...signupForm, email: event.target.value});
+                      }} 
+                      />
                  
                    {/* PASSWORD CONTAINER START */}
                     <div className={fade ? 'fadedClass' : 'visibleClass'}>
@@ -64,25 +89,29 @@ const Signin = () => {
                       <FormControl variant="outlined" fullWidth sx={{ maxWidth: '90%'}} >
                         <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
                           <OutlinedInput
-                              id="outlined-adornment-password"
+                              id=""
+                              value={signupForm.password}
+                              name="password" type="password"
+                              onChange={ (event) => {
+                                setSignupForm({...signupForm, password: event.target.value});
+                              }} 
                               endAdornment={
                                       <InputAdornment position="end">
-                                          <IconButton
-                                              aria-label="toggle password visibility"
-                                              edge="end"
-                                          >
+                                          <IconButton aria-label="toggle password visibility" edge="end" >
                                               <FaEyeSlash />
                                           </IconButton>
                                       </InputAdornment>
                               }
-                              label="password *"
+                              label="Password *"
                           />
                         </FormControl>
-                        <Link to="/dashboard" style={{color: 'white',fontWeight: 'bolder',textDecoration: 'none'}}><Button variant="contained" sx={loginSignIn.signinBtn}>Signin</Button></Link>
+                        {/* <Link to="/dashboard" style={{color: 'white',fontWeight: 'bolder',textDecoration: 'none'}}><Button variant="contained" sx={loginSignIn.signinBtn}>Signin</Button></Link> */}
+                        <Button type="submit" variant="contained" sx={loginSignIn.signinBtn}>Signin</Button>
                       <Box sx={loginSignIn.otplinks}>
                         <Link to="/forgetOtp" style={{ color: '#159AFF', textDecoration: 'none', textAlign: 'left', float: 'left'}} sx={loginSignIn.signInSendotp}>sign in using OTP</Link>
                         <Link to="/forgetpwd" style={{ color: '#159AFF', textDecoration: 'none', textAlign: 'right', float: 'right'}} sx={loginSignIn.signInForgptpassword}>Forgot Password?</Link>
                       </Box>
+                      
                   </div><br />
                    {/* PASSWORD CONTAINER END */}
 
@@ -91,15 +120,12 @@ const Signin = () => {
                     <Button variant="contained"  onAnimationEnd={triggerFade}  className={isActive ? "btncontainer" : "btncontainer active"} onClick={() => { handleToggle()}} style={{ maxWidth: '90%'}}>  <Typography className={isActive ? "text" : "text active"} style={{fontWeight: 'bolder', fontSize: '20px'}}>Next</Typography> <Typography  className={isActive ? "loader" : "loader active"}></Typography></Button><br />
                     <br /><Typography variant="subtitle1"><Link to="/forgetpwd" style={{ color: '#0b0b0b', textDecoration: 'none'}}>Forgot Password</Link></Typography>
                     </div><br />
-                       {/* NEXT BUTTON END */}
-
-                 
+                       {/* NEXT BUTTON END */}                 
                 </Grid>
                 <Divider /><br />
                 
-                  {/* SOCIAL ICONS START               */}
-
-             
+                  {/* SOCIAL ICONS START */}
+            
                     {/* <Typography variant="h6" sx={loginSignIn.signInheadtxt}>Sign In Using</Typography> */}
                     <Grid container sx={loginSignIn.socialcontainer}>
                      
@@ -190,7 +216,6 @@ const Signin = () => {
             }
                  {/* SOCIAL ICONS END               */}
 
-
             </Grid>
             <Grid>
                 
@@ -204,6 +229,7 @@ const Signin = () => {
            {/* CAROUSEL CONTAIENR END*/}
 
        </Grid>
+       </form>
      </Container><br /><br />
      <Box>
        {/* Sign In Footer Start  */}

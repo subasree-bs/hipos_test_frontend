@@ -106,16 +106,10 @@ import Taxratelist from './pages/settings/taxrate/List';
 import Invoicelist from './pages/settings/invoice/List';
 import Layoutcreate from './pages/settings/invoice/layouts/Create';
 import Layoutedit from './pages/settings/invoice/layouts/Edit';
-// import { AppContext } from './context/AppContext';
+
 
  function App() {
-  
-  // const [open, setOpen] = useState(true);
 
-  // // Making memoized value to prevent unwanted renders
-  // const appContext = useMemo(()=> {
-  //   return {open,setOpen};
-  // },[open])
 
   return (
     <>

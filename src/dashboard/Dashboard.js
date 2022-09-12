@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/header/Sidebar';
 import { Grid, Typography, Box, FormControl, InputLabel, Select, MenuItem  } from '@mui/material';
 import { dashboardstyle } from './Dashboardstyle';
@@ -10,19 +10,19 @@ axios.defaults.withCredentails = true
 let firstRender = true;
 const Dashboardlayout = () => {
 
-  const [login,setLogin] = useState();
+  const [userlogin,setuserlogin] = useState();
 
   const refreshToken = async() => {
     const res =  await  axios.get("http://localhost:5000/api/refresh", {
-      withCredential: true
-    }).catch(err=>console.log(err))
+      withCredentials: true,
+    }).catch((err)=>console.log(err))
     const data = await res.data;
     return data;
   }
 
   const sendRequest = async() => {
-    const res = await axios.get("http://localhost:5000/api/dashboard",{
-      withCredentials: true
+    const res = await axios.get("http://localhost:5000/api/userlogin",{
+      withCredentials: true,
     }).catch(err => console.log(err))
     const data = await res.data;
     return data;
@@ -30,10 +30,10 @@ const Dashboardlayout = () => {
   useEffect(()=> {
     if(firstRender){
       firstRender = false;
-      sendRequest().then((data)=>setLogin(data.login))
+      sendRequest().then((data)=>setuserlogin(data.userlogin))
     }
     let interval = setInterval(()=>{ 
-      refreshToken().then(data=>setLogin(data.login))
+      refreshToken().then(data=>setuserlogin(data.userlogin))
     },1000 * 29)
 
     return ()=>clearInterval(interval)
