@@ -12,6 +12,9 @@ import  Daterangepicker  from '../../../components/Daterangepicker';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import * as jsPDF from 'jspdf'; 
+import * as autoTable from 'jspdf-autotable';
+
 const Draftlisttable = ()=>{
     //  JQUERY
     $(document).ready(function () {
@@ -31,6 +34,12 @@ const Draftlisttable = ()=>{
     // / Accordion expand
     const [expanded, setExpanded] = useState("panel1");
     const filterPanel = (panel) => (event, newExpanded) => { setExpanded(newExpanded ? panel : false); };
+
+    const downloadData=()=> {
+        const pdf = new jsPDF();
+        pdf.autoTable({html:'#draftstable'})
+    }
+
     return (
         <Box>
             <Typography sx={userStyle.HeaderText}>Drafts</Typography>
@@ -110,7 +119,7 @@ const Draftlisttable = ()=>{
                         <Button sx={userStyle.buttongrp}><FaFileExcel />&ensp;Export to CSV&ensp;</Button>
                         <Button sx={userStyle.buttongrp}><FaFileExcel />&ensp;Export to Excel&ensp;</Button>
                         <Button sx={userStyle.buttongrp}><FaPrint />&ensp;Print&ensp;</Button>
-                        <Button sx={userStyle.buttongrp}><FaFilePdf />&ensp;Export to PDF&ensp;</Button>
+                        <Button sx={userStyle.buttongrp} onClick= {downloadData}><FaFilePdf />&ensp;Export to PDF&ensp;</Button>
                     </Grid>
                 </Grid>
                 <Box>

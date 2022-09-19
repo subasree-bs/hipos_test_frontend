@@ -42,9 +42,11 @@ export default function Productcreate() {
                             </Select>
                         </FormControl>
                         <Grid>
-                            <IconButton>
-                                <FcInfo />
-                            </IconButton>
+                            <Tooltip title="Enable product expiry. Add item expiry: To directly add item expiry only. Add manufacturing date & expiry period: To add manufacturing date & expiry period and calculate expiry date based on that." arrow>
+                                <IconButton>
+                                    <FcInfo />
+                                </IconButton>
+                            </Tooltip>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -110,16 +112,16 @@ export default function Productcreate() {
                             >
                                 <MenuItem value="">
                                 </MenuItem>
-                                <MenuItem value={1}>please select</MenuItem>
+                                <MenuItem value={1}>Please Select</MenuItem>
                                 <MenuItem value={2}>Pieces (Pc(s))</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo" defaultChecked />Enable Sub Units
+                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo"  />Enable Sub Units
                     <span>
-                        <Tooltip title="Default Profit Percent" arrow>
+                        <Tooltip title="Based on selected Unit it will show sub units for it. Select the sub-unit applicable. Leave blank if all sub-units are applicable for the product." arrow>
                             <IconButton>
                                 <FcInfo />
                             </IconButton>
@@ -127,15 +129,9 @@ export default function Productcreate() {
                     </span>
                 </Grid>
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo" defaultChecked />Enable Racks
-                </Grid>
-                <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo" defaultChecked />Enable Row
-                </Grid>
-                <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo" defaultChecked />Enable Position
+                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo"  />Enable Racks
                     <span>
-                        <Tooltip title="Default Profit Percent" arrow>
+                        <Tooltip title="Enable this to add rack details of a product for different business locations while adding products" arrow>
                             <IconButton>
                                 <FcInfo />
                             </IconButton>
@@ -143,7 +139,13 @@ export default function Productcreate() {
                     </span>
                 </Grid>
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo" defaultChecked />Enable Waranty
+                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo"  />Enable Row
+                </Grid>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo"  />Enable Position
+                </Grid>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Checkbox aria-label="Checkbox demo" label="Checkbox demo"  />Enable Warranty
                 </Grid>
             </Grid>
         </Box>

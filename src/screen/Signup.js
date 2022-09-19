@@ -19,6 +19,8 @@ import google from '../assets/images/icons/google.png';
 import microsoft from '../assets/images/icons/microsoft.png';
 import './Signin.css';
 import axios from 'axios';
+// import XLSX from "xlsx";
+
 const Signup = () => {
     
     const history = useNavigate();
@@ -49,6 +51,10 @@ const Signup = () => {
     const handleSignupSubmit = (e) => {
         e.preventDefault();
         sendSignupRequest().then(() => history('/'));
+    }
+
+    const handleOnExport = () => {
+
     }
 
     return (
@@ -394,10 +400,12 @@ const Signup = () => {
                                 <br />
                                 <Typography>Your data will be in INDIA data center.</Typography>
                                 <FormGroup>
-                                <FormControlLabel control={<Checkbox  />} label="I agree to the Terms of Service and Privacy Policy. " />
+                                    <FormControlLabel control={<Checkbox  />} label="I agree to the Terms of Service and Privacy Policy. " />
                                 </FormGroup>
                              
                                 <br />
+                                <Button onClick={handleOnExport}> Export As Excel</Button>
+                                <br /><br />
                                 {/* <Link to="/dashboard" style={{textDecoration: 'none', color:'white'}}><Button type="submit" variant="contained" fullWidth sx={loginSignup.Signupbtn}>Create your free account</Button></Link> */}
                                 <Button variant="contained" type="submit" fullWidth sx={loginSignup.Signupbtn}>Create your free account</Button>
                                 <br /><br />

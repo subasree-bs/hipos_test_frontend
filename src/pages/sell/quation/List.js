@@ -11,6 +11,8 @@ import  Daterangepicker  from '../../../components/Daterangepicker';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+
+
 const Quotationlisttable = ()=>{
     //  JQUERY
     $(document).ready(function () {
@@ -18,6 +20,7 @@ const Quotationlisttable = ()=>{
             $('#listquotationtable').DataTable({
                 language: { search: '', searchPlaceholder: "Search..." },
                 lengthMenu: [25, 50, 100, 200, 500, 1000],
+                
             });
         }, 1000);
     });
@@ -30,6 +33,11 @@ const Quotationlisttable = ()=>{
     // / Accordion expand
     const [expanded, setExpanded] = useState("panel1");
     const filterPanel = (panel) => (event, newExpanded) => { setExpanded(newExpanded ? panel : false); };
+
+    //
+
+
+
     return (
         <Box>
             <Typography sx={userStyle.HeaderText}>List quotations</Typography>
@@ -142,6 +150,7 @@ const Quotationlisttable = ()=>{
                                         <Button sx={userStyle.buttondelete}><DeleteOutlineOutlinedIcon style={{fontSize:'large'}}/>&ensp;DELETE&ensp;</Button>
                                     </StyledTableCell>
                                 </StyledTableRow>
+
                             </TableBody>
                         </Table>
                     </TableContainer>

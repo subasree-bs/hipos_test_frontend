@@ -16,26 +16,17 @@ import { userStyle } from '../../PageStyle';
 import $ from 'jquery';
 import Discreate from './Create';
 import Disedit from './Edit';
-
-
+import * as jsPDF from 'jspdf'; 
+import * as autoTable from 'jspdf-autotable';
 
 function createData(name, startsat, endsat, discountamount, priority, brand, category, products, location, action) {
-    return {
-        name,
-        startsat,
-        endsat,
-        discountamount,
-        priority,
-        brand,
-        category,
-        products,
-        location,
-        action
-    };
+    return { name, startsat, endsat, discountamount, priority, brand, category, products, location, action };
 }
 
 const rows = [
     createData('sample', 'sample', 'sample', 'sample', 'sample', 'sample', 'sample', 'sample', 'sample', '',),
+    createData('sample', 'sample', 'sample', 'sample', 'sample', 'sample', 'sample', 'sample', 'sample', '',),
+
 ];
 
 function descendingComparator(a, b, orderBy) {
@@ -96,9 +87,7 @@ const headCells = [
     {
         id: 'location', numeric: true, disablePadding: false, label: 'Location',
     },
-    {
-        id: 'action', numeric: true, disablePadding: false, label: 'Action',
-    },
+    {    id: 'action', numeric: true, disablePadding: false, label: 'Action',},
 ];
 
 function EnhancedTableHead(props) {
@@ -107,6 +96,7 @@ function EnhancedTableHead(props) {
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
     };
+
 
     return (
         <TableHead>
@@ -213,6 +203,11 @@ EnhancedTableToolbar.propTypes = {
 
 const Discoutlisttable = () => {
 
+    const downloadData=()=> {
+        const pdf = new jsPDF();
+        pdf.autoTable({html:'#discounttable'})
+    }
+
     useEffect(() => {
         document.body.classList.add('unitbody');
     });
@@ -267,6 +262,8 @@ const Discoutlisttable = () => {
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
+    var XLSX = require("xlsx");
+
     return (
         <Box>
             <Typography sx={userStyle.HeaderText}>Discount</Typography>
@@ -284,7 +281,7 @@ const Discoutlisttable = () => {
                             <Button sx={userStyle.buttongrp}><FaFileCsv />&ensp;Export to CSV&ensp;</Button>
                             <Button sx={userStyle.buttongrp}><AiFillFileExcel />&ensp;Export to Excel&ensp;</Button>
                             <Button sx={userStyle.buttongrp}><FaPrint />&ensp;Print&ensp;</Button>
-                            <Button sx={userStyle.buttongrp}><FaFilePdf />&ensp;Export to PDF&ensp;</Button>
+                            <Button sx={userStyle.buttongrp} onClick= {downloadData}><FaFilePdf />&ensp;Export to PDF&ensp;</Button>
                         </Grid>
                     </Grid>
                     <Table
@@ -350,11 +347,11 @@ const Discoutlisttable = () => {
                                 })}
                         </TableBody>
                         <TableFooter>
-                            <TableRow>
-                                <TableCell colspan={11}>
-                                    <Button sx={userStyle.btnDeactive}>Deactive Selected</Button>
-                                </TableCell>
-                            </TableRow>
+                        <TableRow>
+                            <TableCell colspan={11}>
+                                <Button sx={userStyle.btnDeactive}>Deactive Selected</Button>
+                            </TableCell>
+                        </TableRow>
                         </TableFooter>
                     </Table>
                 </TableContainer>

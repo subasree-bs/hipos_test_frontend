@@ -1,8 +1,11 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { Box, Grid, FormControl, InputLabel, OutlinedInput } from '@mui/material';
 import { userStyle } from '../../PageStyle';
 
 export default function Contactcreate() {
+
+    const [businessSettingsContact,setBusinessSettingsContact] = useState({creditLimit:""})
+
     return (
         <Box sx={userStyle.container}>
             <Grid container spacing={3}>
@@ -12,8 +15,9 @@ export default function Contactcreate() {
                             <InputLabel htmlFor="component-outlined">Default Credit Limit</InputLabel>
                             <OutlinedInput
                                 id="component-outlined"
-                                label="sku prefix"
-                                type="text"
+                                label="Default Credit Limit"
+                                value={businessSettingsContact.ContactCreditLimit}
+                                onChange={(e) => { setBusinessSettingsContact({ ...businessSettingsContact, creditLimit: e.target.value }) }}
                             />
                         </FormControl>
                     </Grid>

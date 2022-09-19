@@ -28,6 +28,12 @@ import { StyledTableRow, StyledTableCell} from '../../../components/Table';
 import Sidebar from '../../../components/header/Sidebar';
 import Footer from '../../../components/footer/Footer';
 import { userStyle } from '../../PageStyle';
+import * as XLSX from 'xlsx';
+import {ReactHTMLTableToExcel} from "react-html-table-to-excel";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+// var tableExport = require('table-export');
+import {CSVLink} from 'react-csv';
 
 //Actions Dropdown Button - List 
 const StyledMenu = styled((props) => (
@@ -85,10 +91,10 @@ function createData( productimage, action, product, businesslocation, upprice,
 
 //All Products Table rows 
 const rows = [
-  createData( "dfgh", "", "Cupcake1", "Cupcake2", "Cupcake3", "Cupcake4", "Cupcake5", 
-  "Cupcake6", "Cupcake7", "Cupcake8", "Cupcake9", 67, 4.3, 69, 46, 78, 89),
   createData( "efgh", "", "Chocolate", "Cake2", "Cake3", "Cake4", "Cake5", "Cake6", "Cake7", 
   "Cake8", "Cake9", 97, 9.3, 99, 96, 98, 99),
+  createData( "dfgh", "", "Cupcake1", "Cupcake2", "Cupcake3", "Cupcake4", "Cupcake5", 
+  "Cupcake6", "Cupcake7", "Cupcake8", "Cupcake9", 67, 4.3, 69, 46, 78, 89),
   createData( "jfgh", "", "Cake1", "Cake2", "Cake3", "Cake4", "Cake5", "Cake6", "Cake7", 
   "Cake8", "Cake9", 37, 3.3, 39, 36, 38, 39),
 ];
@@ -254,8 +260,6 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-
-
 // Table 2 - Stock Report - Row creation function
 function createData2( sr_sku, sr_product, sr_location, sr_unitprice, sr_currentstock, 
   sr_currentstock_pp, sr_currentstock_sp, sr_potentialprofit, sr_totalunitsold, 
@@ -278,8 +282,8 @@ const rows2 = [
 const [productFilter, setProductFilter] = useState({ProductType: "",Category: "",Unit:"",Tax:"",Brand:"",BusinessLocation:"",Status:""})
 
 // Table 1 - All Products
-  const [order, setOrder] = useState("asc");
-  const [orderBy, setOrderBy] = useState("product");
+  const [order, setOrder] = useState("");
+  const [orderBy, setOrderBy] = useState("");
   const [selected, setSelected] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
@@ -353,8 +357,6 @@ const [productFilter, setProductFilter] = useState({ProductType: "",Category: ""
     }, 1000);
   });
 
-
-
 // Accordion expand  
   const [expanded, setExpanded] = useState("panel1");
 
@@ -382,12 +384,46 @@ const [productFilter, setProductFilter] = useState({ProductType: "",Category: ""
 // Stock Report Table Modal
   const [ModalOpen, setModalOpen] = useState(false);
 
-  const handleClickModalOpen = () => {
-    setModalOpen(true);
-  };
-  const handleModalClose = () => {
-    setModalOpen(false);
-  };
+  const handleClickModalOpen = () => { setModalOpen(true);};
+  const handleModalClose = () => { setModalOpen(false); };
+
+  //sheetData
+  const [sheetData,setSheetData] = useState(null);
+
+  const handleOnExport = () => {
+    var wb = XLSX.utils.book_new(),
+    ws =  XLSX.utils.json_to_sheet(sheetData);
+    XLSX.utils.book_append_sheet(wb,ws, "MySheet1",true);
+    XLSX.writeFile(wb, "Table.xlsx");
+  }
+
+  const exportPDF = () => {
+    const unit = "pt";
+    const size = "A4"; 
+    const orientation = "portrait"; 
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(15);
+
+    const title = "Product Table";
+    const headers = [["", "ACTION", "PRODUCT", "BUSINESS LOCATION","UNIT PRICE", "SELLING PRICE", "CURRENT STOCK", "PRODUCT TYPE", "CATEGORY", "BRAND", "TAX", "SKU", "CUSTOM FIELD1", "CUSTOM FIELD2", "CUSTOM FIELD3", "CUSTOM FIELD4",]];
+
+    // const data = this.state.people.map(elt=> [elt.name, elt.profession]);
+
+    let content = {
+      startY: 50,
+      head: headers,
+      // body: data
+    };
+
+    doc.text(title, marginLeft, 40);
+    doc.autoTable(content);
+    doc.save("allproducts.pdf")
+
+    // tableExport('myTable', 'myName', 'pdf');
+  }
 
   return (
     <Box sx={{ margin: '0px 30px' }}>
@@ -580,12 +616,8 @@ const [productFilter, setProductFilter] = useState({ProductType: "",Category: ""
             <TabContext value={TabValue}>
               <Box>
                 <TabList onChange={handleTabChange} aria-label="Tabs">
-                  <Tab icon={<ViewInArIcon />} iconPosition="start" label="All Products" 
-                  value="1" sx={prodList.tab}
-                  />
-                  <Tab icon={<HourglassFullIcon />} iconPosition="start" label="Stock Report" 
-                  value="2" sx={prodList.tab}
-                  />
+                  <Tab icon={<ViewInArIcon />} iconPosition="start" label="All Products"  value="1" sx={prodList.tab} />
+                  <Tab icon={<HourglassFullIcon />} iconPosition="start" label="Stock Report"  value="2" sx={prodList.tab} />
                 </TabList>
               </Box>
               <TabPanel value="1" sx={prodList.tabpanel}>
@@ -603,25 +635,37 @@ const [productFilter, setProductFilter] = useState({ProductType: "",Category: ""
                       <TableContainer sx={{  }}>
                         <Grid container sx={{ justifyContent: "center",}} >
                           <Grid>
-                            <Button sx={userStyle.buttongrp} variant="outlined">
+                            {/* <ReactHTMLTableToExcel 
+                              className=""
+                              table="example"
+                              filename="List Products Table"
+                              sheet="Sheet"
+                              buttonText="Export To Excel"
+                            /> */}
+                            {/* <CSVLink sx={userStyle.buttongrp} data={createData}>
                               <FaFileCsv />&ensp;Export to CSV
-                            </Button>
-                            <Button sx={userStyle.buttongrp} variant="outlined">
+                            </CSVLink> */}
+                            <Button sx={userStyle.buttongrp}  variant="outlined">
                               <AiFillFileExcel />&ensp;Export to Excel
+                            </Button>
+                            <Button sx={userStyle.buttongrp}  variant="outlined">
+                              <AiFillFileExcel />&ensp;Export to CSV
                             </Button>
                             <Button sx={userStyle.buttongrp} variant="outlined">
                               <FaPrint />&ensp;Print
                             </Button>
-                            <Button sx={userStyle.buttongrp} variant="outlined">
+                            <Button sx={userStyle.buttongrp} variant="outlined" onClick={exportPDF}>
                               <FaFilePdf />&ensp;Export to PDF
                             </Button>
                           </Grid>
                         </Grid>
+                        
                         <Table
                           id="example"
                           sx={{ minWidth: 750 ,pr: 1 }}
                           aria-labelledby="tableTitle"
                         >
+                          
                           <EnhancedTableHead
                             numSelected={selected.length} order={order} orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick} onRequestSort={handleRequestSort}
@@ -660,10 +704,7 @@ const [productFilter, setProductFilter] = useState({ProductType: "",Category: ""
                                       scope="row"
                                       padding="none"
                                     >
-                                      <Avatar
-                                        sx={{ backgroundColor: "#cdcdcd" }}
-                                        variant="square"
-                                      ></Avatar>
+                                      <Avatar sx={{ backgroundColor: "#cdcdcd" }} variant="square" ></Avatar>
                                     </StyledTableCell>
 
                       {/* Actions Dropdown Button */}
@@ -688,9 +729,7 @@ const [productFilter, setProductFilter] = useState({ProductType: "",Category: ""
 
                                       <StyledMenu
                                         id="demo-customized-menu"
-                                        MenuListProps={{
-                                          "aria-labelledby": "demo-customized-button",
-                                        }}
+                                        MenuListProps={{ "aria-labelledby": "demo-customized-button", }}
                                         anchorEl={anchorEl} open={open} onClose={handleClose}
                                       >
                                         <MenuItem onClick={handleClose} disableRipple>
@@ -739,7 +778,9 @@ const [productFilter, setProductFilter] = useState({ProductType: "",Category: ""
                                 );
                               })}
                           </TableBody>
+                          
                         </Table>
+                        
                         <br />
                         <Box>
                         <Button  variant="contained"  size="small"  sx={prodList.delete_btn} >
@@ -777,13 +818,13 @@ const [productFilter, setProductFilter] = useState({ProductType: "",Category: ""
                         <Button sx={userStyle.buttongrp}>
                           <FaFileCsv />&ensp;Export to CSV
                         </Button>
-                        <Button sx={userStyle.buttongrp}>
+                        <Button sx={userStyle.buttongrp} onClick={handleOnExport}>
                           <AiFillFileExcel />&ensp;Export to Excel
                         </Button>
                         <Button sx={userStyle.buttongrp}>
                           <FaPrint />&ensp;Print
                         </Button>
-                        <Button sx={userStyle.buttongrp}>
+                        <Button sx={userStyle.buttongrp} onClick={exportPDF}>
                           <FaFilePdf />&ensp;Export to PDF
                         </Button>
                       </Grid>

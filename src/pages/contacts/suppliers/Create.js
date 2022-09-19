@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
     Button, Grid, InputLabel, FormControl, Box, OutlinedInput, Radio, FormControlLabel, RadioGroup, Tooltip, InputAdornment,
@@ -17,8 +18,11 @@ import MoneyOutlinedIcon from '@mui/icons-material/MoneyOutlined';
 import { FcInfo } from "react-icons/fc";
 import { FaInfo } from 'react-icons/fa';
 import { userStyle } from '../../PageStyle';
+import { useSelector } from 'react-redux';
 
 function Suppliercreate() {
+    //
+    const contact = useSelector(state => state.contact.value)
 
     //*** individual or business ****//
     const [shown, setShown] = useState(true);
@@ -41,7 +45,7 @@ function Suppliercreate() {
     const [addSupModForm, setAddSupModForm] = useState({
         addSupContactType: "", addSupContactId: "", addSupBusinessName: "", addSupCusGroup: "", addSupPrefix: "", addSupFistN: "", addSupMiddleN: "", addSupLastN: "", addSupMobile: "",
         addSupAlternateMob: "", addSupLandline: "", addSupEmail: "", addSupDate: "", addSupTaxNo: "", addSupOpeningBal: "", addSupPayTerm: "", addSupPaySelect: "", addSupAddressL1: "",
-        addSupAddressL2: "", addSupCountry: "", addSupState: "", addSupCity: "", addSupZipCode: "", addSupCustom1: "", addSupCustom2: "", addSupCustom3: "", addSupCreditLimit: "",
+        addSupAddressL2: "", addSupCountry: "", addSupState: "", addSupCity: "", addSupZipCode: "", addSupCustom1: "", addSupCustom2: "", addSupCustom3: "", creditLimit: "",
         addSupCustom4: "", addSupCustom5: "", addSupCustom6: "", addSupCustom7: "", addSupCustom8: "", addSupCustom9: "", addSupCustom10: "", addSupShipping: "",
     });
 
@@ -383,9 +387,7 @@ function Suppliercreate() {
                                                     onChange={(event) => { setAddSupModForm({ ...addSupModForm, addSupPaySelect: event.target.value }) }}
                                                     fullWidth
                                                 >
-                                                    <MenuItem value="">
-                                                        <em>Please Select</em>
-                                                    </MenuItem>
+                                                    <MenuItem value="">Please Select</MenuItem>
                                                     <MenuItem value={1}>month</MenuItem>
                                                     <MenuItem value={2}>Days</MenuItem>
                                                 </Select>
@@ -393,6 +395,7 @@ function Suppliercreate() {
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={4} lg={4} >
+                                        {/* <h2>Credit limit: {contact.creditLimit} </h2> */}
                                         <Grid sx={{ display: 'flex' }}  >
                                             <Grid sx={userStyle.spanIcons}><MoneyOutlinedIcon /></Grid>
                                             <FormControl size="small" fullWidth>
@@ -400,9 +403,9 @@ function Suppliercreate() {
                                                 <OutlinedInput
                                                     id="component-outlined"
                                                     label="Credit Limit"
-                                                    value={addSupModForm.addSupCreditLimit}
-                                                    onChange={(event) => { setAddSupModForm({ ...addSupModForm, addSupCreditLimit: event.target.value }) }}
-                                                    type="text"
+                                                    value={contact.creditLimit}
+                                                    onChange={(event) => { setAddSupModForm({ ...addSupModForm, creditLimit: event.target.value }) }}
+                                                    // type="text"
                                                 />
                                             </FormControl>
                                         </Grid>

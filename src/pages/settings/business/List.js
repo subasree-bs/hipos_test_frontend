@@ -20,7 +20,8 @@ import Smscreate from './Smscreate';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import Sidebar from '../../../components/header/Sidebar';
 import Footer from '../../../components/footer/Footer';
-
+import {useDispatch} from 'react-redux';
+import {updateSettings} from "../../../features/Contact"
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -50,8 +51,12 @@ function a11yProps(index) {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+    //
+    const dispatch = useDispatch();
+    
     return (
         <>
+        <form action=""  >
             <Box sx={userStyle.container} >
                 <Typography variant="h6" >Business Settings</Typography>
                 <Grid container spacing={2} >
@@ -85,9 +90,7 @@ function a11yProps(index) {
                 </Grid>
             </Box>
             <br />
-            <Box
-                sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex'}}
-            >
+            <Box sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex'}} >
                 <Tabs
                     orientation="vertical"
                     variant="scrollable"
@@ -161,9 +164,10 @@ function a11yProps(index) {
             <br />
             <Grid container sx={{ justifyContent: 'right !important',bottom:'0', }}>
                 <Box  >
-                    <Button sx={userStyle.buttonadd}>UPDATE SETTINGS</Button>
+                    <Button type="submit" sx={userStyle.buttonadd } onClick={() => dispatch(updateSettings({creditLimit: 100000}))}>UPDATE SETTINGS</Button>
                 </Box>
             </Grid>
+        </form>    
         </>
     );
 }
